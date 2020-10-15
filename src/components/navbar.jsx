@@ -64,11 +64,11 @@ const NavBar = () => {
       <div className="collapse navbar-collapse" id="navbarNavAltMarkup">
         <div className="navbar-nav">
           <NavLink className="nav-item nav-link" to="/history">
-            History
+            Lịch sử
           </NavLink>
-          <NavLink className="nav-item nav-link" to="/login">
+          {/* <NavLink className="nav-item nav-link" to="/login">
             Login
-          </NavLink>
+          </NavLink> */}
         </div>
       </div>
     </nav>
