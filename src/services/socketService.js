@@ -3,8 +3,11 @@ import socketIOClient from "socket.io-client";
 const getSocketData = (apiEndpoint, callback) => {
   const socket = socketIOClient(apiEndpoint);
 
-  socket.emit("getSensorsData");
-  socket.once("returnSensorsData", (response) => callback(response.data));
+  // socket.emit("returnSensorsData");
+  socket.on("returnSensorsData", (response) => {
+    console.log(1);
+    callback(response.data);
+  });
 };
 
 const pumpWaterRequest = (apiEndpoint, callback) => {

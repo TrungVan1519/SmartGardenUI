@@ -1,5 +1,7 @@
 import React, { Component } from "react";
 import { ToastContainer, toast } from "react-toastify";
+import axios from "axios";
+
 import { isNotEmpty, isNumber } from "./../utils/validate";
 import HalfDoughnut from "./common/HalfDoughnut";
 import CustomButton from "./common/customButton";
@@ -12,158 +14,120 @@ import "./css/main.css";
 
 class Main extends Component {
   state = {
-    // halfDoughnuts: [
-    //   {
-    //     id: 2,
-    //     title: "Độ ẩm đất",
-    //     unit: "%",
-    //     datasets: [
-    //       {
-    //         backgroundColor: ["#ffbe76"],
-    //         hoverBackgroundColor: ["#f0932b"],
-    //         data: [], //  format - data: [70, 30],
-    //       },
-    //     ],
-    //   },
-    //   {
-    //     id: 3,
-    //     title: "Độ ẩm không khí",
-    //     unit: "%",
-    //     datasets: [
-    //       {
-    //         backgroundColor: ["#7ed6df"],
-    //         hoverBackgroundColor: ["#22a6b3"],
-    //         data: [], // format - data: [50, 50],
-    //       },
-    //     ],
-    //   },
-    //   {
-    //     id: 1,
-    //     title: "Nhiệt độ",
-    //     unit: "độ C",
-    //     datasets: [
-    //       {
-    //         backgroundColor: ["#ff7979"],
-    //         hoverBackgroundColor: ["#eb4d4b"],
-    //         data: [], //  format - data: [60, 40],
-    //       },
-    //     ],
-    //   },
-    // ],
-    temperature: {
-      id: "temperature",
-      title: "Nhiệt độ",
-      unit: "độ C",
-      datasets: [
-        {
-          backgroundColor: ["#ff7979"],
-          hoverBackgroundColor: ["#eb4d4b"],
-          data: [], //  format - data: [60, 40],
-        },
-      ],
-    },
-    soilMoisture: {
-      id: "soilMoisture",
-      title: "Độ ẩm đất",
-      unit: "%",
-      datasets: [
-        {
-          backgroundColor: ["#ffbe76"],
-          hoverBackgroundColor: ["#f0932b"],
-          data: [], //  format - data: [60, 40],
-        },
-      ],
-    },
-    humidity: {
-      id: "humidity",
-      title: "Độ ẩm không khí",
-      unit: "%",
-      datasets: [
-        {
-          backgroundColor: ["#7ed6df"],
-          hoverBackgroundColor: ["#22a6b3"],
-          data: [], //  format - data: [60, 40],
-        },
-      ],
-    },
-    customButtons: [
-      {
-        id: "updateState",
-        label: "Cập nhật",
-        isActive: false,
+    sensors: {
+      temperature: {
+        id: "temperature",
+        title: "Nhiệt độ",
+        unit: "độ C",
+        datasets: [
+          {
+            backgroundColor: ["#ff7979"],
+            hoverBackgroundColor: ["#eb4d4b"],
+            data: [], //  format - data: [60, 40],
+          },
+        ],
       },
-      {
-        id: "pumpWater",
-        label: "Bơm nước",
-        isActive: false,
+      soilMoisture: {
+        id: "soilMoisture",
+        title: "Độ ẩm đất",
+        unit: "%",
+        datasets: [
+          {
+            backgroundColor: ["#ffbe76"],
+            hoverBackgroundColor: ["#f0932b"],
+            data: [], //  format - data: [60, 40],
+          },
+        ],
       },
-    ],
+      humidity: {
+        id: "humidity",
+        title: "Độ ẩm không khí",
+        unit: "%",
+        datasets: [
+          {
+            backgroundColor: ["#7ed6df"],
+            hoverBackgroundColor: ["#22a6b3"],
+            data: [], //  format - data: [60, 40],
+          },
+        ],
+      },
+    },
+
+    customButton: {
+      id: "pumpWater",
+      label: "Bơm nước",
+      isActive: false,
+    },
   };
 
-  handleClick = (customButton) => {
+  componentDidMount() {
+    // data = await (await http.get(config.apiEndpoint)).data;
+    // Fetching data from Server by using socket
+    // console.log(0);
+    // socket.get(config.apiEndpoint, (responseData) => {
+    //   console.log(1);
+    //   console.log(responseData);
+    //   // if (!isNotEmpty(responseData)) {
+    //   //   toast.error("Error: Data is empty");
+    //   //   responseData = fakeData;
+    //   // }
+    //   // if (!isNumber(responseData)) {
+    //   //   toast.error("Error: Data is not a number (default valid format)");
+    //   //   responseData = fakeData;
+    //   // }
+
+    //   // const responseKeys = Object.keys(responseData);
+    //   // const responseValues = Object.values(responseData);
+    //   // const stateValues = Object.values(this.state);
+    //   // for (let i = 0; i < responseKeys.length; i++) {
+    //   //   for (let j = 0; j < stateValues.length; j++) {
+    //   //     if (stateValues[j].id === responseKeys[i]) {
+    //   //       stateValues[j].datasets[0].data[0] = responseValues[i];
+    //   //       stateValues[j].datasets[0].data[1] = 100 - responseValues[i];
+    //   //     }
+    //   //   }
+    //   // }
+
+    //   // const propValues = Object.values(responseData);
+    //   // const halfDoughnuts = [...this.state.halfDoughnuts];
+    //   // halfDoughnuts.forEach((element, index) => {
+    //   //   element.datasets[0].data[0] = propValues[index];
+    //   //   element.datasets[0].data[1] = 100 - propValues[index];
+    //   // });
+    // });
+    setInterval(() => {
+      axios.get("http://192.168.2.100:3001/api/sensors").then(({ data }) => {
+        const sensors = { ...this.state.sensors };
+        sensors.temperature.datasets[0].data[0] = data.temperature;
+        sensors.temperature.datasets[0].data[1] = 100 - data.temperature;
+
+        sensors.humidity.datasets[0].data[0] = data.humidity;
+        sensors.humidity.datasets[0].data[1] = 100 - data.humidity;
+
+        const soilMoisture = data.soil_moisture.toFixed(2);
+        sensors.soilMoisture.datasets[0].data[0] = soilMoisture;
+        sensors.soilMoisture.datasets[0].data[1] = 100 - soilMoisture;
+
+        this.setState({ sensors });
+      });
+    }, 5000);
+  }
+
+  handlePump = async () => {
     // Button auto change to backgroundColor = green when clicked
-    const customButtons = [...this.state.customButtons];
-    customButtons.forEach((element) => {
-      if (element === customButton) {
-        element.isActive = true;
-      } else {
-        element.isActive = false;
-      }
-    });
-    this.setState({ customButtons });
-
-    if (customButton.id === "updateState") {
-      // data = await (await http.get(config.apiEndpoint)).data;
-      // Fetching data from Server by using socket
-      socket.get(config.apiEndpoint, (responseData) => {
-        if (!isNotEmpty(responseData)) {
-          toast.error("Error: Data is empty");
-          responseData = fakeData;
-        }
-        if (!isNumber(responseData)) {
-          toast.error("Error: Data is not a number (default valid format)");
-          responseData = fakeData;
-        }
-
-        const responseKeys = Object.keys(responseData);
-        const responseValues = Object.values(responseData)
-        const stateValues = Object.values(this.state);
-        for (let i = 0; i < responseKeys.length; i++) {
-          for (let j = 0; j < stateValues.length; j++) {
-            if(stateValues[j].id === responseKeys[i]) {
-              stateValues[j].datasets[0].data[0] = responseValues[i];
-              stateValues[j].datasets[0].data[1] = 100 - responseValues[i];
-            }
-          }
-        }
-
-        // const propValues = Object.values(responseData);
-        // const halfDoughnuts = [...this.state.halfDoughnuts];
-        // halfDoughnuts.forEach((element, index) => {
-        //   element.datasets[0].data[0] = propValues[index];
-        //   element.datasets[0].data[1] = 100 - propValues[index];
-        // });
-
-        customButton.isActive = false;
-        this.setState({ customButtons });
-      });
+    const customButton = { ...this.state.customButton };
+    if (customButton.isActive) {
+      await axios.get("http://192.168.2.100:3001/api/pumpWater?mode=off");
+    } else {
+      await axios.get("http://192.168.2.100:3001/api/pumpWater?mode=on");
     }
 
-    if (customButton.id === "pumpWater") {
-      socket.pumpWater(config.apiEndpoint, (responseData) => {
-        customButtons.forEach((element) => (element.isActive = false));
-        this.setState({ customButtons });
-      });
-    }
+    customButton.isActive = !customButton.isActive;
+    this.setState({ customButton });
   };
 
   render() {
-    const {
-      temperature: temperatureDoughnut,
-      soilMoisture: soilMoistureDoughnut,
-      humidity: humidityDoughnut,
-      customButtons,
-    } = this.state;
+    const { sensors, customButton } = this.state;
 
     return (
       <React.Fragment>
@@ -171,36 +135,29 @@ class Main extends Component {
         <div className="container-fluid text-center">
           <div className="row">
             <div className="col-12 my-3">
-              <h1>Vượt thông tin</h1>
+              <h1>Vườn thông minh</h1>
             </div>
             <div className="col-12 container__data">
               <div className="row">
                 <div className="col-4">
-                  <HalfDoughnut halfDoughnut={temperatureDoughnut} />
+                  <HalfDoughnut halfDoughnut={sensors.temperature} />
                 </div>
                 <div className="col-4">
-                  <HalfDoughnut halfDoughnut={soilMoistureDoughnut} />
+                  <HalfDoughnut halfDoughnut={sensors.humidity} />
                 </div>
                 <div className="col-4">
-                  <HalfDoughnut halfDoughnut={humidityDoughnut} />
+                  <HalfDoughnut halfDoughnut={sensors.soilMoisture} />
                 </div>
               </div>
             </div>
             <div className="col-12 container__button">
               <div className="row">
-                {customButtons.map((customButton) => (
-                  <div
-                    id={`custom-div-${customButton.id}`}
-                    className="col-6"
-                    key={customButton.id}
-                  >
-                    <CustomButton
-                      id={`custom-btn-${customButton.id}`}
-                      customButton={customButton}
-                      onClick={this.handleClick}
-                    />
-                  </div>
-                ))}
+                <div className="col-12">
+                  <CustomButton
+                    customButton={customButton}
+                    onClick={this.handlePump}
+                  />
+                </div>
               </div>
             </div>
           </div>

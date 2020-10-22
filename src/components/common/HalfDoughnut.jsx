@@ -43,7 +43,11 @@ const HalfDoughnut = ({ halfDoughnut }) => {
           circumference: 1 * Math.PI,
         }}
       />
-      <p>{`${halfDoughnut.title}: ${halfDoughnut.datasets[0].data[0] != undefined ? `${halfDoughnut.datasets[0].data[0]} ${halfDoughnut.unit}` : "Không nhận được dữ liệu"}`}</p>
+      <p>{`${halfDoughnut.title}: ${
+        halfDoughnut.datasets[0].data[0] !== undefined
+          ? `${halfDoughnut.datasets[0].data[0]} ${halfDoughnut.unit}`
+          : "Không nhận được dữ liệu"
+      }`}</p>
     </React.Fragment>
   );
 };
